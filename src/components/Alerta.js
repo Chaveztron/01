@@ -30,7 +30,7 @@ const renderIcon = (props) => {
   );
 };
 
-export default function Alerta({show, exit}) {
+export default function Alerta({show, exit, titulo, msj}) {
   const classes = useStyles();
 
 const focusDiv = React.useRef();
@@ -59,16 +59,9 @@ React.useEffect(() => {
       >
         <Fade in={show}>
           <div className={classes.paper}>
-          {/*
-            <h2 id="transition-modal-title">Transition modal</h2>
-            <p id="transition-modal-description">react-transition-group animates me.</p>
-             <Button onClick={handleClose}>Cancelar</Button>,
-            <Button color="blue" onClick={() => console.log('submit this dialog')}>Eliminar</Button>,
-          */}
-
           <Dialog
-          title="This is a title"
-          message="This message is inside a dialog component."
+          title={titulo}
+          message={msj}
           icon={renderIcon()}
           buttons={[
             <Button onClick={handleClose}>Cancelar</Button>,

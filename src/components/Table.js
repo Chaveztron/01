@@ -196,7 +196,12 @@ const EnhancedTableToolbar = (props) => {
           </IconButton>
         </Tooltip>
       )}
-      <Alerta show={modal} exit={salir => setModal(salir)}> </Alerta>
+      <Alerta 
+        show={modal} 
+        exit={salir => setModal(salir)} 
+        titulo={`¿Estás seguro de que quieres eliminar a estos ${numSelected} pacientes?`}
+        msj={"La acción es irreversible y no se volverán a recuperar, ¿desea continuar?"} 
+      > </Alerta>
       {console.log(modal)}
     </Toolbar>
     
