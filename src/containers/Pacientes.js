@@ -3,8 +3,13 @@ import Table from '../components/Table'
 
 const { ipcRenderer } = window.require("electron");
 
-export default function Pacientes(props) {
+function Ancestor() {
+    const [a, setA] = React.useState(1)
+    return <button onClick={() => setA(a+1)} >El valor del boton {a}</button>
+  } 
 
+export default function Pacientes(props) {
+    
 
     var users = ipcRenderer.sendSync('get-pacientes')
 
@@ -44,7 +49,10 @@ export default function Pacientes(props) {
   return (
     <div>
         <h1>{titulo}</h1>
-        <Table rows={rows} headCells={headCells}/>
+        <Table rows={rows} headCells={headCells} titulo={"Pacientes"} />
+
+        <Ancestor></Ancestor>
+        
     </div>
   );
 }
