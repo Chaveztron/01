@@ -30,7 +30,7 @@ const renderIcon = (props) => {
   );
 };
 
-export default function Alerta({show, exit, titulo, msj}) {
+export default function Alerta({show, confirm, exit, titulo, msj}) {
   const classes = useStyles();
 
 const focusDiv = React.useRef();
@@ -42,6 +42,8 @@ React.useEffect(() => {
   const handleClose = () => {
     exit(false)
   };
+
+
 
   return (
     <div>
@@ -65,7 +67,7 @@ React.useEffect(() => {
           icon={renderIcon()}
           buttons={[
             <Button onClick={handleClose}>Cancelar</Button>,
-            <Button color="blue" onClick={() => console.log('submit this dialog')} >Eliminar</Button>,
+            <Button color="blue" onClick={() => confirm(true)} >Eliminar</Button>,
           ]}
         />
 

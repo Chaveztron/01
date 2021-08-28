@@ -22,6 +22,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 
 import Alerta from './Alerta';
+import { DeveloperBoard } from '@material-ui/icons';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -123,15 +124,10 @@ const useToolbarStyles = makeStyles((theme) => ({
   },
 }));
 
-const EnhancedTableToolbar = (props) => {
-  const [modal, setModal] = React.useState(false)
+const EnhancedTableToolbar = ({delB, numSelected, selected, titulo}) => {
   const classes = useToolbarStyles();
-  const { numSelected, selected, titulo } = props;
 
-
-
-  //console.log(selected)
-  //console.log(modal)
+ 
 
   return (
     <Toolbar
@@ -151,7 +147,7 @@ const EnhancedTableToolbar = (props) => {
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton aria-label="delete" onClick={() => { modal?setModal(false):setModal(true) }}>
+          <IconButton aria-label="delete" onClick={() => { delB(true) }}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -162,13 +158,18 @@ const EnhancedTableToolbar = (props) => {
           </IconButton>
         </Tooltip>
       )}
+
+      {/* 
       <Alerta 
         show={modal} 
         exit={salir => setModal(salir)} 
         titulo={`¿Estás seguro de que quieres eliminar a estos ${numSelected} pacientes?`}
         msj={"La acción es irreversible y no se volverán a recuperar, ¿desea continuar?"} 
       > </Alerta>
+      
+
       {console.log(modal)}
+      */}
     </Toolbar>
     
   );
@@ -202,7 +203,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EnhancedTable({rows, headCells, titulo}) {
+export default function EnhancedTable({delB, seleccionados, rows, headCells, titulo}) {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
@@ -221,6 +222,7 @@ export default function EnhancedTable({rows, headCells, titulo}) {
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelecteds = rows.map((n) => n);
+      seleccionados(newSelecteds)
       setSelected(newSelecteds);
       return;
     }
@@ -243,6 +245,8 @@ export default function EnhancedTable({rows, headCells, titulo}) {
         selected.slice(selectedIndex + 1),
       );
     }
+
+    seleccionados(newSelected)
 
     setSelected(newSelected);
   };
@@ -270,7 +274,8 @@ export default function EnhancedTable({rows, headCells, titulo}) {
         <EnhancedTableToolbar 
           numSelected={selected.length} 
           selected={selected} 
-          titulo={titulo} />
+          titulo={titulo}
+          delB = {dB => delB(dB)} />
         <TableContainer>
           <Table
             className={classes.table}
