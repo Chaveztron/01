@@ -21,8 +21,7 @@ import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 
-import Alerta from './Alerta';
-import { DeveloperBoard } from '@material-ui/icons';
+import { TitleBar, Toolbar as ToolbarMAC, SearchField } from 'react-desktop/macOs';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -127,8 +126,6 @@ const useToolbarStyles = makeStyles((theme) => ({
 const EnhancedTableToolbar = ({delB, numSelected, selected, titulo}) => {
   const classes = useToolbarStyles();
 
- 
-
   return (
     <Toolbar
       className={clsx(classes.root, {
@@ -158,18 +155,6 @@ const EnhancedTableToolbar = ({delB, numSelected, selected, titulo}) => {
           </IconButton>
         </Tooltip>
       )}
-
-      {/* 
-      <Alerta 
-        show={modal} 
-        exit={salir => setModal(salir)} 
-        titulo={`¿Estás seguro de que quieres eliminar a estos ${numSelected} pacientes?`}
-        msj={"La acción es irreversible y no se volverán a recuperar, ¿desea continuar?"} 
-      > </Alerta>
-      
-
-      {console.log(modal)}
-      */}
     </Toolbar>
     
   );
@@ -212,6 +197,22 @@ export default function EnhancedTable({delB, seleccionados, rows, headCells, tit
   const [dense, setDense] = React.useState(true);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
+  const [search, setSearch] = React.useState('');
+  const [filteredPacientes, setFilteredPacientes] = React.useState([]);
+
+  React.useEffect(() => {
+    setFilteredPacientes(
+      rows.filter( row => {
+        var renglon
+        headCells.map((propiedad, i) => {
+          let propi = propiedad.id
+          renglon = row[propi] + renglon    
+        })
+        return (
+        renglon.toLowerCase().includes(search.toLowerCase()) )
+      })
+    )
+  },[search, rows])
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -270,7 +271,17 @@ export default function EnhancedTable({delB, seleccionados, rows, headCells, tit
 
   return (
     <div className={classes.root}>
+    
       <Paper className={classes.paper}>
+                                                <TitleBar inset>
+                                                <ToolbarMAC height="25" horizontalAlignment="right">
+                                                  <SearchField
+                                                    placeholder="Search"
+                                                    defaultValue=""
+                                                    onChange={(e) => setSearch(e.target.value)}
+                                                  />
+                                                </ToolbarMAC>
+                                              </TitleBar>
         <EnhancedTableToolbar 
           numSelected={selected.length} 
           selected={selected} 
@@ -294,7 +305,7 @@ export default function EnhancedTable({delB, seleccionados, rows, headCells, tit
               headCells={headCells}
             />
             <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
+              {stableSort(filteredPacientes, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const isItemSelected = isSelected(row);
