@@ -19,7 +19,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import Add from '@material-ui/icons/Add';
+import { Button } from 'react-desktop/macOs';
 
 import { TitleBar, Toolbar as ToolbarMAC, SearchField } from 'react-desktop/macOs';
 
@@ -123,7 +124,7 @@ const useToolbarStyles = makeStyles((theme) => ({
   },
 }));
 
-const EnhancedTableToolbar = ({delB, numSelected, selected, titulo}) => {
+const EnhancedTableToolbar = ({delB, addB, numSelected, selected, titulo}) => {
   const classes = useToolbarStyles();
 
   return (
@@ -143,16 +144,14 @@ const EnhancedTableToolbar = ({delB, numSelected, selected, titulo}) => {
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
+        <Tooltip title="Borrar">
           <IconButton aria-label="delete" onClick={() => { delB(true) }}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
-          <IconButton aria-label="filter list">
-            <FilterListIcon />
-          </IconButton>
+        <Tooltip title={`Agregar ${titulo}`} >
+            <Button color="blue" onClick={() => {addB(true)}}>{`Agregar`}</Button>
         </Tooltip>
       )}
     </Toolbar>
@@ -188,7 +187,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EnhancedTable({delB, seleccionados, rows, headCells, titulo}) {
+export default function EnhancedTable({delB, addB, seleccionados, rows, headCells, titulo}) {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
@@ -206,7 +205,7 @@ export default function EnhancedTable({delB, seleccionados, rows, headCells, tit
         var renglon
         headCells.map((propiedad, i) => {
           let propi = propiedad.id
-          renglon = row[propi] + renglon    
+          renglon = renglon+' '+row[propi]
         })
         return (
         renglon.toLowerCase().includes(search.toLowerCase()) )
@@ -261,10 +260,6 @@ export default function EnhancedTable({delB, seleccionados, rows, headCells, tit
     setPage(0);
   };
 
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
-  };
-
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
@@ -279,6 +274,7 @@ export default function EnhancedTable({delB, seleccionados, rows, headCells, tit
                                                     placeholder="Search"
                                                     defaultValue=""
                                                     onChange={(e) => setSearch(e.target.value)}
+                                                    onCancel={() => setSearch('')}
                                                   />
                                                 </ToolbarMAC>
                                               </TitleBar>
@@ -286,7 +282,9 @@ export default function EnhancedTable({delB, seleccionados, rows, headCells, tit
           numSelected={selected.length} 
           selected={selected} 
           titulo={titulo}
-          delB = {dB => delB(dB)} />
+          delB = {dB => delB(dB)}
+          addB = {aB => addB(aB)} 
+          />
         <TableContainer>
           <Table
             className={classes.table}
@@ -374,10 +372,6 @@ export default function EnhancedTable({delB, seleccionados, rows, headCells, tit
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
     </div>
   );
 }

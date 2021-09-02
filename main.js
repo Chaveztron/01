@@ -67,6 +67,17 @@ app.on('ready', () => {
         });
     })
 
+    ipcMain.on('del-paciente', (event, arg) => {
+        const knex = require('knex')(options);
+        knex('paciente').where({ 'id': arg.id })
+        .del()
+        .catch((err) => { console.log(err); throw err })
+        .finally(() => {
+            knex.destroy();
+        });
+        event.returnValue = 'borrado de la base de datos'
+    })
+
 })
 
 app.on('window-all-closed', () => {

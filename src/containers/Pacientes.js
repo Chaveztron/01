@@ -1,8 +1,9 @@
 import React, { useContext, useEffect } from "react";
 import UserContext from "../context/Paciente/UserContext";
 import Table from '../components/Table'
-
 import Alerta from '../components/Alerta';
+
+const { ipcRenderer } = window.require("electron");
 
 function Ancestor() {
     const [a, setA] = React.useState(1)
@@ -13,14 +14,25 @@ export default function Pacientes(props) {
   const [modal, setModal] = React.useState(false)
   const [seleccionados, setSeleccionados] = React.useState([])
 
-    
   const userContext = useContext(UserContext);
 
     useEffect(() => {
       userContext.getUsers();
     }, []);
 
-    ////Logica para borrar a los usuarios
+  const borrarPacientes = (accion) => {
+      console.log(accion)
+
+      seleccionados.map((seleccionado) => {
+        console.log('El paciente '+seleccionado.id+' a sido borrado')
+        console.log(ipcRenderer.sendSync('del-paciente', {
+          id: seleccionado.id,
+        }))
+        
+      })
+      window.location.reload();
+      setModal(false)
+  };
 
     
     const headCells = [
@@ -34,18 +46,18 @@ export default function Pacientes(props) {
       ];
     
 
-  let titulo = "pacientes"
+
 
 
   return (
     
       <div>
-          <h1>{titulo}</h1>
           <Table 
           rows={userContext.users} 
           headCells={headCells} 
           titulo={"Pacientes"} 
-          delB={b => setModal(b)} 
+          delB={b => setModal(b)}
+          addB={a => console.log(a)} 
           seleccionados={s => setSeleccionados(s)}
           />
           
@@ -54,7 +66,7 @@ export default function Pacientes(props) {
           exit={salir => setModal(salir)} 
           titulo={seleccionados.length===1?`¿Estás seguro de que quieres eliminar a este paciente?`:`¿Estás seguro de que quieres eliminar a estos ${seleccionados.length} pacientes?`}
           msj={"La acción es irreversible y no se volverán a recuperar, ¿desea continuar?"} 
-          confirm={confirm => console.log(confirm)}
+          confirm={confirm => borrarPacientes(confirm)}
         > </Alerta>
           
           <Ancestor></Ancestor>

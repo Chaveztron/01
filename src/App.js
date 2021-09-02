@@ -18,9 +18,11 @@ function App() {
   return (
   <UserState>
     <BrowserRouter>
+    <div style={{ "background": "white" }}>
       <NavLink to='/pacientes' activeClassName='active'><button>Pacientes</button></NavLink>
-      
+    
     <Route path='/' render={(props)=> <Pacientes {...props} />} />
+    </div>
   </BrowserRouter>
   </UserState>
   );
