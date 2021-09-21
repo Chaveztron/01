@@ -21,7 +21,8 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
     outline: 'none',
-    forcedColorAdjust: 'none'
+    forcedColorAdjust: 'none',
+    width: '40%',
   },
 }));
 
@@ -32,7 +33,7 @@ const renderIcon = (props) => {
   );
 };
 
-export default function FormModal({children, show, exit, titulo}) {
+export default function FormModal({children, show, exit, titulo, submitting, formData, error}) {
   const classes = useStyles();
 
 const focusDiv = React.useRef();
@@ -45,7 +46,22 @@ React.useEffect(() => {
     exit(false)
   };
 
+  const handleSubmit = event => {
+    event.preventDefault();
 
+    if(error){
+      console.log('hay un error')
+    }else{
+      submitting(true);
+      exit(false)
+      setTimeout(() => {
+        submitting(false);
+        formData(true)
+      }, 3000)
+    }
+
+
+  };
 
   return (
     <div>
@@ -68,9 +84,12 @@ React.useEffect(() => {
                 {titulo}
             </Typography>
         </div>
-
+        <form onSubmit={handleSubmit}>
             {children}
 
+            <Button onClick={handleClose}>Cancelar</Button>
+            <Button color="blue" type="submit">Agregar</Button>  
+          </form>
             </div>
         </Fade>
       </Modal>

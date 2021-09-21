@@ -3,16 +3,23 @@ import UserContext from "../context/Paciente/UserContext";
 import Table from '../components/Table'
 import Alerta from '../components/Alerta';
 import FormModal from '../components/FormModal';
-import { Dialog, Button, TextInput } from 'react-desktop/macOs';
+
+import SelectM from "../components/inputs/select";
+import InputText from "../components/inputs/input_text";
+import InputNum from "../components/inputs/input_num";
 
 const { ipcRenderer } = window.require("electron");
 
-function Ancestor() {
-    const [a, setA] = React.useState(1)
-    return <button onClick={() => setA(a+1)} >El valor del boton {a}</button>
-  } 
 
   const formReducer = (state, event) => {
+    if(event.reset) {
+      return {
+        apple: '',
+        count: 0,
+        name: '',
+        'gift-wrap': false,
+      }
+    }
     return {
       ...state,
       [event.name]: event.value
@@ -20,12 +27,14 @@ function Ancestor() {
    }
 
 export default function Pacientes(props) {
-  const [formData, setFormData] = React.useReducer(formReducer, {});
+  const [formData, setFormData] = React.useReducer(formReducer, {
+    count: 100,
+  });
   const [submitting, setSubmitting] = React.useState(false);
   const [modal, setModal] = React.useState(false)
   const [modalForm, setModalForm] = React.useState(false)
   const [seleccionados, setSeleccionados] = React.useState([])
-
+  const [error, setError] = React.useState(false)
 
   const userContext = useContext(UserContext);
 
@@ -33,22 +42,26 @@ export default function Pacientes(props) {
       userContext.getUsers();
     }, []);
 
-  const handleSubmit = event => {
-    event.preventDefault();
-    setSubmitting(true);
+    //console.log(formData) // <-- cachar los datos para hacer las validaciones
+    // en caso de error, enviar al submit para devolver un mensaje
 
-    setModalForm(false)
+    const validacion = (data) => {
+      console.log(data.name)
+      // aqui cachariamos los valores de cada elemento para realizar las validaciones
+      // dependiedo la naturaleza de los errores, se cambiara la naturaleza de este dato de abajo
+      setError(false)
+    }
 
-    setTimeout(() => {
-      setSubmitting(false);
-    }, 3000)
-  };
 
   const handleChange = event => {
+    const isCheckbox = event.target.type === 'checkbox';
     setFormData({
       name: event.target.name,
-      value: event.target.value,
+      value: isCheckbox ? event.target.checked : event.target.value,
     });
+
+    validacion(formData) // por cada evneto, mandamos parametros de cada input del for aca y lo validamos
+
   }
 
   const borrarPacientes = (accion) => {
@@ -76,7 +89,16 @@ export default function Pacientes(props) {
         { id: 'genero', numeric: false, disablePadding: false, label: 'Genero' },
       ];
     
+const sexo = [
+  {value: 'Hombre', title: 'Hombre'},
+  {value: 'Mujer', title: 'Mujer'}
+]
 
+const apples = [
+  {value: 'fuji', title: 'Fuji'},
+  {value: 'jonathan', title: 'Jonathan'},
+  {value: 'honey-crisp', title: 'Honey Crisp'}
+]
 
 
 
@@ -101,6 +123,8 @@ export default function Pacientes(props) {
           addB={a => setModalForm(a)} 
           seleccionados={s => setSeleccionados(s)}
           />
+
+         
           
           <Alerta 
           show={modal} 
@@ -110,24 +134,71 @@ export default function Pacientes(props) {
           confirm={confirm => borrarPacientes(confirm)}
         > </Alerta>
 
-        <FormModal show={modalForm} exit={salir => setModalForm(salir)} titulo={'Agregar paciente\n*En construccion*'}> 
-        <form onSubmit={handleSubmit}>
+        <FormModal 
+          show={modalForm} 
+          exit={salir => setModalForm(salir)} 
+          titulo={'Agregar paciente'} 
+          submitting= { submitting => setSubmitting(submitting)}
+          formData = {res => setFormData({reset: res}) }
+          error = {error}
+          > 
 
-            <TextInput
+          <InputText
             label="Apellido Paterno"
-            placeholder="My Input"
-            defaultValue=""
-            rounded='8'
-            centerPlaceholder
+            placeholder="Chavez"
             name="name"
-            onChange={handleChange}
+            value={formData.name || ''}
+            onchange={handleChange}
+            dis={submitting?true:false}
+          />
+
+        
+            <SelectM 
+              value={formData.genero || ''} 
+              name="genero" 
+              label="Genero"
+              onchange={handleChange} 
+              dis={submitting?true:false}
+              options={sexo} 
             />
-            <Button >Cancelar</Button>
-            <Button color="blue" type="submit">Agregar</Button>   
-          </form>
+
+
+            <SelectM 
+            value={formData.apple || ''}
+            name="apple" 
+            label="Apple"
+            onchange={handleChange} 
+            dis={submitting?true:false}
+            options={apples} 
+          />
+
+          <InputNum
+          label="Count"
+          name="count" 
+          onchange={handleChange} 
+          value={formData.count || ''} 
+          dis={submitting?true:false}
+          max={120}
+          prefix=''
+          />
+ 
+     
+            <fieldset>
+            <label>
+              <p>Gift Wrap</p>
+              <input 
+              type="checkbox" 
+              name="gift-wrap" 
+              onChange={handleChange} 
+              checked={formData['gift-wrap'] || false}
+              disabled={formData.apple !== 'fuji' || submitting}
+              />
+            </label>     
+          </fieldset>
+
+ 
+
         </FormModal>
-          
-          <Ancestor></Ancestor>
           
       </div>
   );
